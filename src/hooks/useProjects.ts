@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { Project, CodeState, INITIAL_CODE } from '../types';
 
 const STORAGE_KEY = 'deepsite_projects';
@@ -28,35 +29,36 @@ export function useProjects(token: string | null) {
 
   const [activeProjectId, setActiveProjectId] = useState<string>('default');
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      if (!token) return;
-      try {
-        const [ownedRes, sharedRes] = await Promise.all([
-          fetch('/api/projects/list', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('/api/projects/shared', { headers: { 'Authorization': `Bearer ${token}` } })
-        ]);
+  const refreshProjects = async () => {
+    if (!token) return;
+    try {
+      const [ownedRes, sharedRes] = await Promise.all([
+        fetch('/api/projects/list', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/projects/shared', { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
+      
+      if (ownedRes.ok && sharedRes.ok) {
+        const owned = await ownedRes.json();
+        const shared = await sharedRes.json();
+        const cloudProjects = [...owned, ...shared];
         
-        if (ownedRes.ok && sharedRes.ok) {
-          const owned = await ownedRes.json();
-          const shared = await sharedRes.json();
-          const cloudProjects = [...owned, ...shared];
-          
-          setProjects(prev => {
-            const merged = [...cloudProjects];
-            prev.forEach(lp => {
-              if (!merged.find(cp => cp.id === lp.id)) {
-                merged.push(lp);
-              }
-            });
-            return merged;
+        setProjects(prev => {
+          const merged = [...cloudProjects];
+          prev.forEach(lp => {
+            if (!merged.find(cp => cp.id === lp.id)) {
+              merged.push(lp);
+            }
           });
-        }
-      } catch (err) {
-        console.error('Failed to sync projects:', err);
+          return merged;
+        });
       }
-    };
-    loadProjects();
+    } catch (err) {
+      console.error('Failed to sync projects:', err);
+    }
+  };
+
+  useEffect(() => {
+    refreshProjects();
   }, [token]);
 
   useEffect(() => {
@@ -98,10 +100,12 @@ export function useProjects(token: string | null) {
     ));
   };
 
-  const createProject = (name: string) => {
+  const createProject = (name: string, description?: string) => {
+    const sanitizedDescription = description ? DOMPurify.sanitize(description.trim()) : undefined;
     const newProject: Project = {
       id: Math.random().toString(36).substr(2, 9),
       name,
+      description: sanitizedDescription,
       code: INITIAL_CODE,
       updatedAt: Date.now(),
       userId: 'local'
@@ -118,9 +122,10 @@ export function useProjects(token: string | null) {
     }
   };
 
-  const renameProject = (id: string, newName: string) => {
+  const renameProject = (id: string, newName: string, description?: string) => {
+    const sanitizedDescription = description ? DOMPurify.sanitize(description.trim()) : undefined;
     setProjects(prev => prev.map(p => 
-      p.id === id ? { ...p, name: newName, updatedAt: Date.now() } : p
+      p.id === id ? { ...p, name: newName, description: sanitizedDescription, updatedAt: Date.now() } : p
     ));
   };
 
@@ -155,6 +160,7 @@ export function useProjects(token: string | null) {
     createProject,
     deleteProject,
     renameProject,
-    updateProjectSharing
+    updateProjectSharing,
+    refreshProjects
   };
 }

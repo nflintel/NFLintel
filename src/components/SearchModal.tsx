@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Search, Calendar, Tag, ArrowRight, Loader2, Filter, SortAsc, SortDesc } from 'lucide-react';
+import { X, Search, Calendar, Tag, ArrowRight, Loader2, Filter, SortAsc, SortDesc, Bookmark, BookmarkPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
 
@@ -16,10 +16,26 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
     category: '',
     startDate: '',
     endDate: '',
+    minConfidence: '',
     sort: 'updatedAt',
     order: 'desc' as 'asc' | 'desc',
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [savedQueries, setSavedQueries] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('savedQueries');
+    if (saved) {
+      setSavedQueries(JSON.parse(saved));
+    }
+  }, []);
+
+  const handleSaveQuery = () => {
+    if (!query.trim()) return;
+    const newSaved = [...new Set([query.trim(), ...savedQueries])].slice(0, 5);
+    setSavedQueries(newSaved);
+    localStorage.setItem('savedQueries', JSON.stringify(newSaved));
+  };
 
   const handleSearch = async () => {
     setLoading(true);
@@ -31,6 +47,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
         ...(filters.category && { category: filters.category }),
         ...(filters.startDate && { startDate: new Date(filters.startDate).getTime().toString() }),
         ...(filters.endDate && { endDate: new Date(filters.endDate).getTime().toString() }),
+        ...(filters.minConfidence && { minConfidence: filters.minConfidence }),
       });
 
       const res = await fetch(`/api/projects/search?${params.toString()}`);
@@ -67,8 +84,17 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search projects, code, or assets..."
-                className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-lg focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
+                className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
               />
+              {query && (
+                <button
+                  onClick={handleSaveQuery}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-emerald-500 transition-colors"
+                  title="Save Search Query"
+                >
+                  <BookmarkPlus className="w-5 h-5" />
+                </button>
+              )}
             </div>
             <button 
               onClick={() => setShowFilters(!showFilters)}
@@ -84,6 +110,23 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
             </button>
           </div>
 
+          {savedQueries.length > 0 && (
+            <div className="flex items-center gap-2 mt-4 overflow-x-auto no-scrollbar">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-1 shrink-0">
+                <Bookmark className="w-3 h-3" /> Saved:
+              </span>
+              {savedQueries.map((sq, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setQuery(sq)}
+                  className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
+                >
+                  {sq}
+                </button>
+              ))}
+            </div>
+          )}
+
           <AnimatePresence>
             {showFilters && (
               <motion.div 
@@ -92,7 +135,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 pt-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-1 flex items-center gap-2">
                       <Tag className="w-3 h-3" /> Category
@@ -100,13 +143,27 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                     <select 
                       value={filters.category}
                       onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                      className="w- Nike-input w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
                     >
                       <option value="">All Categories</option>
                       <option value="web">Web App</option>
                       <option value="mobile">Mobile</option>
                       <option value="landing">Landing Page</option>
                     </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-1 flex items-center gap-2">
+                      <Filter className="w-3 h-3" /> Min Confidence
+                    </label>
+                    <input 
+                      type="number"
+                      min="0"
+                      max="100"
+                      placeholder="0-100"
+                      value={filters.minConfidence}
+                      onChange={(e) => setFilters({ ...filters, minConfidence: e.target.value })}
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-1 flex items-center gap-2">
@@ -142,6 +199,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                       >
                         <option value="updatedAt">Date Updated</option>
                         <option value="name">Project Name</option>
+                        <option value="confidenceScore">Confidence</option>
                       </select>
                       <button 
                         onClick={() => setFilters({ ...filters, order: filters.order === 'asc' ? 'desc' : 'asc' })}
@@ -181,6 +239,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                     <h4 className="font-bold text-sm dark:text-white truncate">{project.name}</h4>
                     <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">
                       Updated {new Date(project.updatedAt).toLocaleDateString()}
+                      {project.confidenceScore !== undefined && ` • Confidence: ${project.confidenceScore}%`}
                     </p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors" />
@@ -198,3 +257,4 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
     </div>
   );
 };
+

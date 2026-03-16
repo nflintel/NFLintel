@@ -19,8 +19,6 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showRemoteForm, setShowRemoteForm] = useState(false);
-
-  const [isExpanded, setIsExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStatus = async () => {
@@ -285,36 +283,22 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
   }
 
   return (
-    <div className="flex flex-col border-b border-slate-200 dark:border-slate-800">
-      <div 
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
         <div className="flex items-center gap-2">
-          {isExpanded ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
+          <GitBranch size={16} className="text-emerald-500" />
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Source Control</span>
         </div>
         <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            fetchStatus();
-          }}
+          onClick={fetchStatus}
           disabled={loading}
-          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors text-slate-400"
+          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-400"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
         </button>
       </div>
 
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="p-4 pt-0">
+      <div className="flex-1 overflow-y-auto p-4">
               {error && !showRemoteForm && !isRepo && (
                 <div className="mb-4 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-500">
                   {error}
@@ -554,10 +538,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                   )}
                 </div>
               )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

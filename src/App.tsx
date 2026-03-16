@@ -14,7 +14,7 @@ import { FileExplorer } from './components/FileExplorer';
 import { GitPanel } from './components/GitPanel';
 import { TasksPanel } from './components/TasksPanel';
 import { CodeState, ProjectAsset, ThemeConfig, Vulnerability } from './types';
-import { Code2, Play, MessageSquare, Layers, Shield } from 'lucide-react';
+import { Code2, Play, MessageSquare, Layers, Shield, Folder, CheckSquare, GitBranch, Wrench, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from './hooks/useTheme';
@@ -23,6 +23,7 @@ import { useProjects } from './hooks/useProjects';
 import { useDebounce } from './hooks/useDebounce';
 
 type MobileTab = 'editor' | 'preview' | 'chat' | 'toolbox' | 'security';
+type SidebarTab = 'files' | 'tasks' | 'git' | 'toolbox' | 'security' | 'chat';
 
 export default function App() {
   const { theme, toggleTheme, themeConfig, setThemeConfig } = useTheme();
@@ -37,11 +38,13 @@ export default function App() {
     createProject,
     deleteProject,
     renameProject,
-    updateProjectSharing
+    updateProjectSharing,
+    refreshProjects
   } = useProjects(token);
 
   const [activeTab, setActiveTab] = useState<'html' | 'css' | 'js' | 'php' | 'react' | 'md'>('html');
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor');
+  const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>('files');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -273,44 +276,105 @@ export default function App() {
 
       <main className="flex-1 flex overflow-hidden relative">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:flex w-80 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-xl">
-          <FileExplorer 
-            projects={projects}
-            activeProjectId={activeProjectId}
-            onSelectProject={setActiveProjectId}
-            onCreateProject={createProject}
-            onDeleteProject={deleteProject}
-            onRenameProject={renameProject}
-            onRestoreVersion={(updatedProject) => {
-              setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-            }}
-            token={token}
-          />
-          <div className="flex-1 overflow-y-auto scrollbar-none">
-            <TasksPanel
-              project={activeProject}
-              token={token}
-              onUpdateProject={(updatedProject) => {
-                setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-              }}
-            />
-            <GitPanel 
-              project={activeProject} 
-              token={token} 
-              onRestoreCommit={(updatedProject) => {
-                setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-              }}
-            />
-            <Toolbox 
-              onInsertComponent={handleInsertComponent}
-              projects={projects}
-              activeProjectId={activeProjectId}
-              onSelectProject={setActiveProjectId}
-              assets={activeProject.assets || []}
-              onUploadAsset={handleUploadAsset}
-              onDeleteAsset={handleDeleteAsset}
-              token={token}
-            />
+        <div className="hidden lg:flex h-full">
+          {/* Activity Bar */}
+          <div className="w-12 border-r border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 flex flex-col items-center py-4 gap-4 z-10">
+            {[
+              { id: 'files', icon: Folder, title: 'Explorer' },
+              { id: 'tasks', icon: CheckSquare, title: 'Tasks' },
+              { id: 'git', icon: GitBranch, title: 'Source Control' },
+              { id: 'toolbox', icon: Wrench, title: 'Toolbox' },
+              { id: 'chat', icon: MessageSquare, title: 'AI Assistant' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSidebarTab(tab.id as SidebarTab)}
+                className={`p-2 rounded-xl transition-all ${
+                  activeSidebarTab === tab.id 
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
+                }`}
+                title={tab.title}
+              >
+                <tab.icon size={20} strokeWidth={activeSidebarTab === tab.id ? 2.5 : 2} />
+              </button>
+            ))}
+          </div>
+
+          {/* Sidebar Content */}
+          <div className="w-80 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-xl overflow-y-auto scrollbar-none">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSidebarTab}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.2 }}
+                className="h-full flex flex-col"
+              >
+                {activeSidebarTab === 'files' && (
+                  <FileExplorer 
+                    projects={projects}
+                    activeProjectId={activeProjectId}
+                    onSelectProject={setActiveProjectId}
+                    onCreateProject={createProject}
+                    onDeleteProject={deleteProject}
+                    onRenameProject={renameProject}
+                    onRestoreVersion={(updatedProject) => {
+                      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+                    }}
+                    token={token}
+                    onRefreshProjects={refreshProjects}
+                  />
+                )}
+                {activeSidebarTab === 'tasks' && (
+                  <TasksPanel
+                    project={activeProject}
+                    token={token}
+                    onUpdateProject={(updatedProject) => {
+                      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+                    }}
+                  />
+                )}
+                {activeSidebarTab === 'git' && (
+                  <GitPanel 
+                    project={activeProject} 
+                    token={token} 
+                    onRestoreCommit={(updatedProject) => {
+                      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+                    }}
+                  />
+                )}
+                {activeSidebarTab === 'toolbox' && (
+                  <Toolbox 
+                    onInsertComponent={handleInsertComponent}
+                    projects={projects}
+                    activeProjectId={activeProjectId}
+                    onSelectProject={setActiveProjectId}
+                    assets={activeProject.assets || []}
+                    onUploadAsset={handleUploadAsset}
+                    onDeleteAsset={handleDeleteAsset}
+                    token={token}
+                  />
+                )}
+                {activeSidebarTab === 'chat' && (
+                  <div className="flex-1 flex flex-col h-full">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 font-bold">
+                      <MessageSquare size={18} className="text-emerald-500" />
+                      AI Assistant
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      <Chat 
+                        onCodeGenerated={handleAICodeGenerated} 
+                        currentCode={activeProject.code} 
+                        theme={theme}
+                        assets={activeProject.assets || []}
+                      />
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 
@@ -398,17 +462,7 @@ export default function App() {
           </>
         )}
       </div>
-
-          {/* Chat Section (Desktop Bottom) */}
-          <div className="hidden lg:block h-80 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-            <Chat 
-              onCodeGenerated={handleAICodeGenerated} 
-              currentCode={activeProject.code} 
-              theme={theme}
-              assets={activeProject.assets || []}
-            />
-          </div>
-        </div>
+    </div>
 
         {/* Chat Section (Mobile Overlay) */}
         <AnimatePresence>
@@ -470,6 +524,7 @@ export default function App() {
                     setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
                   }}
                   token={token}
+                  onRefreshProjects={refreshProjects}
                 />
                 <TasksPanel
                   project={activeProject}

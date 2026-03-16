@@ -122,9 +122,87 @@ async function startServer() {
     res.json({ id: user.id, username: user.username, email: user.email, bio: user.bio, avatarUrl: user.avatarUrl });
   });
 
+  // Scraper Integration API
+  app.get("/api/scrapes", authenticateToken, (req, res) => {
+    const offlineDir = path.join(process.cwd(), 'output', 'offline_clone');
+    if (!fs.existsSync(offlineDir)) {
+      return res.json([]);
+    }
+    const files = fs.readdirSync(offlineDir).filter(f => f.endsWith('.html'));
+    res.json(files.map(f => ({
+      filename: f,
+      name: f.replace('.html', ''),
+      time: fs.statSync(path.join(offlineDir, f)).mtimeMs
+    })));
+  });
+
+  app.post("/api/scrapes/import", authenticateToken, (req: any, res) => {
+    const { filename } = req.body;
+    const filePath = path.join(process.cwd(), 'output', 'offline_clone', filename);
+    
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "Scrape not found" });
+    }
+
+    const html = fs.readFileSync(filePath, 'utf-8');
+    const db = getDB();
+
+    const newProject = {
+      id: crypto.randomUUID(),
+      name: `Scrape: ${filename.replace('.html', '')}`,
+      code: {
+        html: html,
+        css: "",
+        js: "",
+        php: "",
+        react: "",
+        md: ""
+      },
+      assets: [],
+      updatedAt: Date.now(),
+      userId: req.user.id,
+      isPublic: false
+    };
+
+    db.projects.push(newProject);
+    saveDB(db);
+    res.json(newProject);
+  });
+
+  app.post("/api/internal/import-scrape", express.json({limit: '50mb'}), (req, res) => {
+    const { name, html, css, js, assets } = req.body;
+    const db = getDB();
+    
+    const defaultUser = db.users[0]; 
+    if (!defaultUser) {
+      return res.status(400).json({error: "No users exist. Please create an account first."});
+    }
+
+    const newProject = {
+      id: crypto.randomUUID(),
+      name: name || "Scraped Site",
+      code: {
+        html: html || "",
+        css: css || "",
+        js: js || "",
+        php: "",
+        react: "",
+        md: ""
+      },
+      assets: assets || [],
+      updatedAt: Date.now(),
+      userId: defaultUser.id,
+      isPublic: false
+    };
+
+    db.projects.push(newProject);
+    saveDB(db);
+    res.json({ success: true, projectId: newProject.id });
+  });
+
   // Search API
   app.get("/api/projects/search", (req, res) => {
-    const { q, category, startDate, endDate, sort = "updatedAt", order = "desc" } = req.query;
+    const { q, category, startDate, endDate, minConfidence, sort = "updatedAt", order = "desc" } = req.query;
     const db = getDB();
     let results = [...db.projects];
 
@@ -132,7 +210,12 @@ async function startServer() {
       const query = (q as string).toLowerCase();
       results = results.filter(p => 
         p.name.toLowerCase().includes(query) || 
-        p.code.html.toLowerCase().includes(query)
+        (p.code.html && p.code.html.toLowerCase().includes(query)) ||
+        (p.code.css && p.code.css.toLowerCase().includes(query)) ||
+        (p.code.js && p.code.js.toLowerCase().includes(query)) ||
+        (p.code.php && p.code.php.toLowerCase().includes(query)) ||
+        (p.code.react && p.code.react.toLowerCase().includes(query)) ||
+        (p.code.md && p.code.md.toLowerCase().includes(query))
       );
     }
 
@@ -146,6 +229,10 @@ async function startServer() {
 
     if (endDate) {
       results = results.filter(p => p.updatedAt <= Number(endDate));
+    }
+
+    if (minConfidence) {
+      results = results.filter(p => (p.confidenceScore || 0) >= Number(minConfidence));
     }
 
     results.sort((a, b) => {

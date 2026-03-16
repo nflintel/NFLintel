@@ -70,7 +70,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 overflow-y-auto p-6 space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="nike-text text-4xl dark:text-white flex items-center gap-3">
             <Shield className="w-10 h-10 text-emerald-500" />
@@ -79,6 +79,12 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           <p className="text-slate-500 dark:text-slate-400 mt-1">
             Monitoring security posture for <span className="font-bold text-slate-900 dark:text-white">{project.name}</span>
           </p>
+          {project.description && (
+            <p 
+              className="text-sm text-slate-600 dark:text-slate-300 mt-2 max-w-2xl"
+              dangerouslySetInnerHTML={{ __html: project.description }}
+            />
+          )}
         </div>
         <button 
           onClick={onScan}

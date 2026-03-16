@@ -46,7 +46,10 @@ export interface Task {
 export interface Project {
   id: string;
   name: string;
+  description?: string;
   code: CodeState;
+  category?: string;
+  confidenceScore?: number;
   assets?: ProjectAsset[];
   tasks?: Task[];
   updatedAt: number;

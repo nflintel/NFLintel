@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckSquare, Plus, Trash2, Edit2, ChevronDown, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import DOMPurify from 'dompurify';
 import { Project, Task, TaskPriority, TaskStatus } from '../types';
 
 interface TasksPanelProps {
@@ -10,7 +11,6 @@ interface TasksPanelProps {
 }
 
 export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdateProject }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   
@@ -25,10 +25,12 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
     e.preventDefault();
     if (!title.trim() || !token) return;
 
+    const sanitizedDescription = DOMPurify.sanitize(description.trim());
+
     const newTask: Task = {
       id: editingTaskId || crypto.randomUUID(),
       title: title.trim(),
-      description: description.trim(),
+      description: sanitizedDescription,
       priority,
       status,
       createdAt: Date.now()
@@ -136,13 +138,10 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
   };
 
   return (
-    <div className="flex flex-col border-b border-slate-200 dark:border-slate-800">
-      <div 
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
         <div className="flex items-center gap-2">
-          {isExpanded ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
+          <CheckSquare size={16} className="text-emerald-500" />
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
             Tasks
             {tasks.length > 0 && (
@@ -155,49 +154,40 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            if (!isExpanded) setIsExpanded(true);
             resetForm();
             setIsAdding(true);
           }}
-          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors text-slate-400"
+          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors text-slate-400 hover:text-emerald-500"
           title="Add Task"
         >
           <Plus size={14} />
         </button>
       </div>
 
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="p-4 pt-0 space-y-4">
-              {isAdding ? (
-                <form onSubmit={handleSaveTask} className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Task title..."
-                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs focus:outline-none focus:border-emerald-500 dark:text-white"
-                    autoFocus
-                  />
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Description (optional)..."
-                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs focus:outline-none focus:border-emerald-500 dark:text-white resize-none h-16"
-                  />
-                  <div className="flex gap-2">
-                    <select
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                      className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs focus:outline-none focus:border-emerald-500 dark:text-white"
-                    >
-                      <option value="low">Low Priority</option>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {isAdding && (
+          <form onSubmit={handleSaveTask} className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Task title..."
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs focus:outline-none focus:border-emerald-500 dark:text-white"
+              autoFocus
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description (optional)..."
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs focus:outline-none focus:border-emerald-500 dark:text-white resize-none h-16"
+            />
+            <div className="flex gap-2">
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs focus:outline-none focus:border-emerald-500 dark:text-white"
+              >
+                <option value="low">Low Priority</option>
                       <option value="medium">Medium Priority</option>
                       <option value="high">High Priority</option>
                     </select>
@@ -228,7 +218,9 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
                     </button>
                   </div>
                 </form>
-              ) : tasks.length === 0 ? (
+              )}
+              
+              {!isAdding && tasks.length === 0 ? (
                 <div className="text-center py-6">
                   <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-2">
                     <CheckSquare className="w-5 h-5 text-slate-400" />
@@ -265,9 +257,10 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
                             </div>
                           </div>
                           {task.description && (
-                            <p className={`text-[10px] text-slate-500 mb-2 line-clamp-2 ${task.status === 'done' ? 'opacity-50' : ''}`}>
-                              {task.description}
-                            </p>
+                            <p 
+                              className={`text-[10px] text-slate-500 mb-2 line-clamp-2 ${task.status === 'done' ? 'opacity-50' : ''}`}
+                              dangerouslySetInnerHTML={{ __html: task.description }}
+                            />
                           )}
                           <div className="flex items-center gap-2">
                             <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${getPriorityColor(task.priority)}`}>
@@ -283,10 +276,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
                   ))}
                 </div>
               )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };
