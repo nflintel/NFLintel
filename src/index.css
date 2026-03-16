@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Anton&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: var(--font-sans-custom, "Inter", ui-sans-serif, system-ui, sans-serif);
+  --font-display: "Anton", sans-serif;
+  --font-mono: var(--font-mono-custom, "JetBrains Mono", ui-monospace, SFMono-Regular, monospace);
+  
+  --color-primary: var(--color-primary-custom, #000000);
+  --color-primary-blue: #3b82f6;
+  --color-primary-purple: #a855f7;
+  --color-primary-green: #22c55e;
+  --color-slate-dark: var(--color-slate-dark-custom, #0f172a);
+  --color-accent: var(--accent-custom, #10b981);
+  --color-accent-glow: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    /* Theme Variables from ThemeConfig */
+    --primary-color: var(--color-primary-custom, #10b981);
+    --dark-slate: var(--color-slate-dark-custom, #0f172a);
+    --font-sans: var(--font-sans-custom, "Inter", ui-sans-serif, system-ui, sans-serif);
+    --font-mono: var(--font-mono-custom, "JetBrains Mono", ui-monospace, SFMono-Regular, monospace);
+
+    --bg-base: #ffffff;
+    --text-primary: #000000;
+    --border-base: #e5e5e5;
+    --bg-surface: #f8f8f8;
+  }
+
+  .dark {
+    --bg-base: var(--bg-base-custom, #000000);
+    --text-primary: #ffffff;
+    --border-base: #1a1a1a;
+    --bg-surface: #0a0a0a;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    @apply antialiased transition-colors duration-300;
+  }
+}
+
+.glass {
+  @apply bg-white/60 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+}
+
+.glass-dark {
+  @apply bg-black/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+}
+
+.atmosphere {
+  background: 
+    radial-gradient(circle at 50% -20%, var(--color-accent-glow) 0%, transparent 70%),
+    radial-gradient(circle at 0% 100%, var(--color-primary-blue) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--color-primary-purple) 0%, transparent 40%);
+  filter: blur(80px);
+  opacity: 0.15;
+}
+
+.dark .atmosphere {
+  opacity: 0.3;
+}
+
+.nike-text {
+  @apply font-display uppercase tracking-tighter leading-[0.85] italic;
+}
+
+.btn-primary {
+  @apply relative overflow-hidden bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs transition-all hover:scale-105 active:scale-95 shadow-xl hover:shadow-accent/20;
+}
+
+/* Chat Styles */
+.chat-bubble {
+  @apply max-w-[85%] p-4 text-sm leading-relaxed shadow-sm transition-all duration-300;
+}
+
+.chat-bubble-user {
+  @apply bg-accent text-white rounded-2xl rounded-tr-sm;
+}
+
+.chat-bubble-assistant {
+  @apply bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-black/5 dark:border-white/5 rounded-2xl rounded-tl-sm;
+}
+
+.chat-avatar {
+  @apply w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform hover:scale-110;
+}
+
+.chat-avatar-user {
+  @apply bg-accent/10 text-accent border border-accent/20;
+}
+
+.chat-avatar-assistant {
+  @apply bg-black text-white dark:bg-white dark:text-black border border-black/10 dark:border-white/10;
+}
+
+.chat-input-container {
+  @apply relative;
+}
+
+.chat-input {
+  @apply w-full bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl p-4 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all min-h-[100px] resize-none shadow-sm;
+}
+
+.chat-send-btn {
+  @apply absolute right-3 bottom-3 w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center hover:bg-accent/90 active:scale-95 disabled:opacity-50 disabled:hover:bg-accent transition-all shadow-md;
+}
