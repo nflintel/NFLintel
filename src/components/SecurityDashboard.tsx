@@ -68,11 +68,11 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   const healthScore = stats.total === 0 ? 100 : Math.round((resolvedCount / stats.total) * 100);
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 overflow-y-auto p-6 space-y-8">
+    <div className="flex flex-col h-full bg-white dark:bg-black dark:bg-slate-950 overflow-y-auto p-6 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <h1 className="nike-text text-4xl dark:text-white flex items-center gap-3">
+          <h1 className="font-black uppercase tracking-widest text-4xl dark:text-white flex items-center gap-3">
             <Shield className="w-10 h-10 text-emerald-500" />
             Security Dashboard
           </h1>
@@ -90,9 +90,9 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           onClick={onScan}
           disabled={isScanning}
           className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-full nike-text text-sm transition-all active:scale-95",
+            "flex items-center gap-2 px-6 py-3 border-2 border-black dark:border-white font-black uppercase tracking-widest text-sm transition-all active:scale-95",
             isScanning 
-              ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed" 
+              ? "bg-slate-200 dark:bg-black dark:bg-zinc-900 text-slate-400 cursor-not-allowed" 
               : "bg-black dark:bg-white text-white dark:text-black hover:shadow-xl"
           )}
         >
@@ -135,8 +135,8 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <h3 className="nike-text text-xl mb-6 dark:text-white">Severity Distribution</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <h3 className="font-black uppercase tracking-widest text-xl mb-6 dark:text-white">Severity Distribution</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.severityData}>
@@ -157,8 +157,8 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <h3 className="nike-text text-xl mb-6 dark:text-white">Remediation Status</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <h3 className="font-black uppercase tracking-widest text-xl mb-6 dark:text-white">Remediation Status</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -186,11 +186,11 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
       </div>
 
       {/* Vulnerability List & Auto-Remediation */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] overflow-hidden">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <h3 className="nike-text text-xl dark:text-white">Vulnerabilities & Remediation</h3>
+          <h3 className="font-black uppercase tracking-widest text-xl dark:text-white">Vulnerabilities & Remediation</h3>
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-full">
+            <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 border-2 border-black dark:border-white">
               <ShieldCheck className="w-3 h-3" />
               Auto-Remediation Active
             </span>
@@ -200,7 +200,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/50">
+              <tr className="bg-white dark:bg-black dark:bg-slate-950/50">
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Vulnerability</th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Severity</th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
@@ -209,7 +209,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {vulnerabilities.length > 0 ? vulnerabilities.map((v) => (
-                <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <tr key={v.id} className="hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-zinc-900/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-900 dark:text-white">{v.title}</span>
@@ -226,7 +226,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[v.status] }} />
+                      <div className="w-2 h-2 border-2 border-black dark:border-white" style={{ backgroundColor: STATUS_COLORS[v.status] }} />
                       <span className="text-xs font-medium capitalize dark:text-slate-300">{v.status}</span>
                     </div>
                   </td>
@@ -240,13 +240,13 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
                       <button 
                         onClick={() => onRemediate(v.id)}
                         disabled={v.status === 'remediating'}
-                        className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-black dark:border-white text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
                       >
                         {v.status === 'remediating' ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
                         Auto-Remediate
                       </button>
                     ) : (
-                      <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 hover:border-slate-900 dark:hover:border-white rounded-xl text-xs font-bold transition-all dark:text-white">
+                      <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 hover:border-slate-900 dark:hover:border-white border-2 border-black dark:border-white text-xs font-bold transition-all dark:text-white">
                         Manual Fix
                         <ArrowRight className="w-3 h-3" />
                       </button>
@@ -277,14 +277,14 @@ interface MetricCardProps {
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon: Icon, color, trend }) => (
-  <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+  <div className="bg-white dark:bg-slate-900 p-6 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
     <div className="flex items-center justify-between mb-4">
-      <div className={cn("p-3 rounded-2xl bg-slate-50 dark:bg-slate-800", color)}>
+      <div className={cn("p-3 border-2 border-black dark:border-white bg-white dark:bg-black dark:bg-black dark:bg-zinc-900", color)}>
         <Icon className="w-6 h-6" />
       </div>
       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{title}</span>
     </div>
-    <div className="nike-text text-3xl dark:text-white mb-1">{value}</div>
+    <div className="font-black uppercase tracking-widest text-3xl dark:text-white mb-1">{value}</div>
     <div className="text-xs font-medium text-slate-500 dark:text-slate-400">{trend}</div>
   </div>
 );

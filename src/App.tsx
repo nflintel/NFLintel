@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Header } from './components/Header';
 import { Toolbox } from './components/Toolbox';
 import { Chat } from './components/Chat';
@@ -14,16 +15,46 @@ import { FileExplorer } from './components/FileExplorer';
 import { GitPanel } from './components/GitPanel';
 import { TasksPanel } from './components/TasksPanel';
 import { CodeState, ProjectAsset, ThemeConfig, Vulnerability } from './types';
-import { Code2, Play, MessageSquare, Layers, Shield, Folder, CheckSquare, GitBranch, Wrench, X } from 'lucide-react';
+import { Code2, Play, MessageSquare, Layers, Shield, Folder, CheckSquare, GitBranch, Wrench, X, Share2, Search, User, Sun, Moon } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
 import { useProjects } from './hooks/useProjects';
 import { useDebounce } from './hooks/useDebounce';
+import { cn } from './lib/utils';
 
-type MobileTab = 'editor' | 'preview' | 'chat' | 'toolbox' | 'security';
-type SidebarTab = 'files' | 'tasks' | 'git' | 'toolbox' | 'security' | 'chat';
+import { Explore } from './components/Explore';
+import { Dashboard } from './components/Dashboard';
+
+type MainView = 'editor' | 'explore' | 'dashboard' | 'profile';
+type ActiveOverlay = 'none' | 'menu' | 'files' | 'tasks' | 'git' | 'toolbox' | 'security' | 'chat';
+
+const MenuButton = ({ icon: Icon, label, onClick }: { icon: any, label: string, onClick: () => void }) => (
+  <button onClick={onClick} className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+    <Icon size={32} strokeWidth={1.5} />
+    <span className="text-xs font-bold uppercase tracking-widest">{label}</span>
+  </button>
+);
+
+const OverlayWrapper = ({ title, onClose, children }: { title: string, onClose: () => void, children: React.ReactNode }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 20 }}
+    className="fixed inset-0 z-[100] bg-white dark:bg-zinc-950 flex flex-col"
+  >
+    <div className="h-16 border-b-2 border-black dark:border-white flex items-center justify-between px-4 shrink-0">
+      <h2 className="font-bold uppercase tracking-widest">{title}</h2>
+      <button onClick={onClose} className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+        <X size={20} />
+      </button>
+    </div>
+    <div className="flex-1 overflow-hidden flex flex-col">
+      {children}
+    </div>
+  </motion.div>
+);
 
 export default function App() {
   const { theme, toggleTheme, themeConfig, setThemeConfig } = useTheme();
@@ -42,15 +73,16 @@ export default function App() {
     refreshProjects
   } = useProjects(token);
 
+  const [mainView, setMainView] = useState<MainView>('editor');
   const [activeTab, setActiveTab] = useState<'html' | 'css' | 'js' | 'php' | 'react' | 'md'>('html');
-  const [mobileTab, setMobileTab] = useState<MobileTab>('editor');
-  const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>('files');
+  const [activeOverlay, setActiveOverlay] = useState<ActiveOverlay>('none');
+  const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
+  
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [showSecurity, setShowSecurity] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -72,7 +104,6 @@ export default function App() {
                 return [...prev, sharedProject];
               });
               setActiveProjectId(sharedProject.id);
-              // Clean up URL
               window.history.replaceState({}, '', '/');
             }
           } catch (err) {
@@ -97,8 +128,9 @@ export default function App() {
     } else {
       updateActiveProjectCode({ [activeTab]: newCode });
     }
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#3b82f6', '#000000'] });
-    setMobileTab('preview');
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#000000', '#ffffff'] });
+    setShowPreviewOnMobile(true);
+    setActiveOverlay('none');
   };
 
   const handleInsertComponent = (html: string) => {
@@ -110,14 +142,14 @@ export default function App() {
 
     updateActiveProjectCode({ html: updatedHtml });
     setActiveTab('html');
-    setMobileTab('editor');
+    setActiveOverlay('none');
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
   };
 
   const handleUploadAsset = (asset: Omit<ProjectAsset, 'id'>) => {
     const newAsset = { ...asset, id: Math.random().toString(36).substr(2, 9) };
     updateActiveProjectCode({ assets: [...(activeProject.assets || []), newAsset] } as any);
-    confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 }, colors: ['#3b82f6'] });
+    confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 } });
   };
 
   const handleDeleteAsset = async (assetId: string) => {
@@ -137,7 +169,7 @@ export default function App() {
   };
 
   const handleRun = () => {
-    setMobileTab('preview');
+    setShowPreviewOnMobile(true);
     confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 } });
   };
 
@@ -176,7 +208,7 @@ export default function App() {
       });
 
       if (!res.ok) throw new Error('Failed to save project');
-      confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 }, colors: ['#10b981'] });
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
     } catch (err) {
       console.error('Save error:', err);
       alert('Failed to save project to the cloud');
@@ -194,7 +226,7 @@ export default function App() {
   const handleAuthSuccess = (newToken: string, userData: any) => {
     login(newToken, userData);
     setIsAuthOpen(false);
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 }, colors: ['#3b82f6', '#ffffff'] });
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } });
   };
 
   const handleSecurityScan = async () => {
@@ -222,12 +254,6 @@ export default function App() {
   const handleRemediate = async (vulnerabilityId: string) => {
     if (!token) return;
     
-    // Optimistic update
-    const updatedVulnerabilities = (activeProject.vulnerabilities || []).map(v => 
-      v.id === vulnerabilityId ? { ...v, status: 'remediating' as const } : v
-    );
-    // Update local state (simulated)
-    
     try {
       const res = await fetch(`/api/projects/${activeProjectId}/remediate`, {
         method: 'POST',
@@ -239,8 +265,6 @@ export default function App() {
       });
       
       if (res.ok) {
-        const fixedVulnerability = await res.json();
-        // Refresh project to get updated code and vulnerability status
         window.location.reload(); 
       }
     } catch (err) {
@@ -248,8 +272,73 @@ export default function App() {
     }
   };
 
+  const getDynamicSeo = () => {
+    const stripHtml = (html: string) => {
+      const tmp = document.createElement('DIV');
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || '';
+    };
+
+    let title = activeProject.name ? `${activeProject.name} - Dirtnapp` : 'Dirtnapp';
+    let description = activeProject.description 
+      ? stripHtml(activeProject.description) 
+      : 'Create and edit your projects with AI.';
+
+    try {
+      const html = activeProject.code?.html || '';
+      const md = activeProject.code?.md || '';
+
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (titleMatch && titleMatch[1].trim()) {
+        title = `${titleMatch[1].trim()} - Dirtnapp`;
+      } else {
+        const h1Match = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+        if (h1Match && h1Match[1].trim()) {
+          title = `${h1Match[1].trim()} - Dirtnapp`;
+        } else if (md) {
+          const mdTitleMatch = md.match(/^#\s+(.+)$/m);
+          if (mdTitleMatch && mdTitleMatch[1].trim()) {
+            title = `${mdTitleMatch[1].trim()} - Dirtnapp`;
+          }
+        }
+      }
+
+      const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i) || 
+                        html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']description["'][^>]*>/i);
+      if (descMatch && descMatch[1].trim()) {
+        description = descMatch[1].trim();
+      } else {
+        const pMatch = html.match(/<p[^>]*>([^<]+)<\/p>/i);
+        if (pMatch && pMatch[1].trim()) {
+          const pText = pMatch[1].trim();
+          description = pText.length > 150 ? pText.substring(0, 147) + '...' : pText;
+        } else if (md) {
+          const mdLines = md.split('\n');
+          const pLine = mdLines.find(line => line.trim().length > 0 && !line.trim().startsWith('#'));
+          if (pLine) {
+            const pText = pLine.trim();
+            description = pText.length > 150 ? pText.substring(0, 147) + '...' : pText;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error generating dynamic SEO", e);
+    }
+
+    return { title, description };
+  };
+
+  const seo = React.useMemo(() => getDynamicSeo(), [activeProject.name, activeProject.description, activeProject.code]);
+
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col h-screen bg-white dark:bg-zinc-950 text-black dark:text-white font-sans antialiased selection:bg-black/10 dark:selection:bg-white/10">
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+      </Helmet>
+      
       <Header 
         theme={theme} 
         onToggleTheme={toggleTheme}
@@ -262,8 +351,8 @@ export default function App() {
         onRun={handleRun}
         onSave={handleSave}
         isSaving={isSaving}
-        onToggleSecurity={() => setShowSecurity(!showSecurity)}
-        showSecurity={showSecurity}
+        onToggleSecurity={() => setActiveOverlay('security')}
+        showSecurity={activeOverlay === 'security'}
         onOpenShare={() => {
           if (!token) {
             alert('Please sign in to share projects');
@@ -272,328 +361,209 @@ export default function App() {
           }
           setIsShareOpen(true);
         }}
+        mainView={mainView}
+        setMainView={setMainView}
+        onOpenMenu={() => setActiveOverlay('menu')}
       />
 
       <main className="flex-1 flex overflow-hidden relative">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:flex h-full">
-          {/* Activity Bar */}
-          <div className="w-12 border-r border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 flex flex-col items-center py-4 gap-4 z-10">
-            {[
-              { id: 'files', icon: Folder, title: 'Explorer' },
-              { id: 'tasks', icon: CheckSquare, title: 'Tasks' },
-              { id: 'git', icon: GitBranch, title: 'Source Control' },
-              { id: 'toolbox', icon: Wrench, title: 'Toolbox' },
-              { id: 'chat', icon: MessageSquare, title: 'AI Assistant' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveSidebarTab(tab.id as SidebarTab)}
-                className={`p-2 rounded-xl transition-all ${
-                  activeSidebarTab === tab.id 
-                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
-                }`}
-                title={tab.title}
-              >
-                <tab.icon size={20} strokeWidth={activeSidebarTab === tab.id ? 2.5 : 2} />
-              </button>
-            ))}
-          </div>
+        {mainView === 'explore' && (
+          <Explore 
+            onCloneProject={(project) => {
+              createProject(project.name + ' (Remix)', project.description, project.code);
+              setMainView('editor');
+            }}
+            onPlayProject={(project) => {
+              setActiveProjectId(project.id);
+              setMainView('editor');
+            }}
+          />
+        )}
 
-          {/* Sidebar Content */}
-          <div className="w-80 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-xl overflow-y-auto scrollbar-none">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeSidebarTab}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.2 }}
-                className="h-full flex flex-col"
-              >
-                {activeSidebarTab === 'files' && (
-                  <FileExplorer 
-                    projects={projects}
-                    activeProjectId={activeProjectId}
-                    onSelectProject={setActiveProjectId}
-                    onCreateProject={createProject}
-                    onDeleteProject={deleteProject}
-                    onRenameProject={renameProject}
-                    onRestoreVersion={(updatedProject) => {
-                      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-                    }}
-                    token={token}
-                    onRefreshProjects={refreshProjects}
-                  />
-                )}
-                {activeSidebarTab === 'tasks' && (
-                  <TasksPanel
-                    project={activeProject}
-                    token={token}
-                    onUpdateProject={(updatedProject) => {
-                      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-                    }}
-                  />
-                )}
-                {activeSidebarTab === 'git' && (
-                  <GitPanel 
-                    project={activeProject} 
-                    token={token} 
-                    onRestoreCommit={(updatedProject) => {
-                      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-                    }}
-                  />
-                )}
-                {activeSidebarTab === 'toolbox' && (
-                  <Toolbox 
-                    onInsertComponent={handleInsertComponent}
-                    projects={projects}
-                    activeProjectId={activeProjectId}
-                    onSelectProject={setActiveProjectId}
-                    assets={activeProject.assets || []}
-                    onUploadAsset={handleUploadAsset}
-                    onDeleteAsset={handleDeleteAsset}
-                    token={token}
-                  />
-                )}
-                {activeSidebarTab === 'chat' && (
-                  <div className="flex-1 flex flex-col h-full">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 font-bold">
-                      <MessageSquare size={18} className="text-emerald-500" />
-                      AI Assistant
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                      <Chat 
-                        onCodeGenerated={handleAICodeGenerated} 
-                        currentCode={activeProject.code} 
-                        theme={theme}
-                        assets={activeProject.assets || []}
-                      />
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
+        {mainView === 'dashboard' && (
+          <Dashboard 
+            projects={projects}
+            onSelectProject={(id) => {
+              setActiveProjectId(id);
+              setMainView('editor');
+            }}
+            onUpdateProject={(id, updates) => {
+              setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+            }}
+          />
+        )}
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-            {showSecurity ? (
-              <div className="flex-1 overflow-hidden">
-                <SecurityDashboard 
-                  project={activeProject}
-                  onScan={handleSecurityScan}
-                  onRemediate={handleRemediate}
-                  isScanning={isScanning}
-                />
-              </div>
-            ) : (
-              <>
-                {/* Editor Section */}
-                <AnimatePresence mode="wait">
-              {(mobileTab === 'editor' || window.innerWidth >= 1024) && (
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className={`flex-1 flex flex-col border-r border-slate-200 dark:border-slate-800 ${mobileTab !== 'editor' ? 'hidden lg:flex' : 'flex'}`}
-                >
-                  <div className="flex items-center justify-between px-4 py-2 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-                    <div className="flex gap-1 overflow-x-auto no-scrollbar">
-                      {(['html', 'css', 'js', 'php', 'react', 'md'] as const).map((tab) => (
-                        <button
-                          key={tab}
-                          onClick={() => setActiveTab(tab)}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                            activeTab === tab 
-                              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
-                              : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          {tab.toUpperCase()}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => setMobileTab('preview')}
-                        className="lg:hidden p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-full transition-colors"
-                      >
-                        <Play size={18} fill="currentColor" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex-1 relative">
-                    <CodeEditor 
-                      ref={editorRef}
-                      language={activeTab === 'js' || activeTab === 'react' ? 'javascript' : activeTab === 'md' ? 'markdown' : activeTab}
-                      value={activeProject.code[activeTab]}
-                      onChange={(val) => updateActiveProjectCode({ [activeTab]: val || '' })}
-                      theme={theme}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {mainView === 'editor' && (
+          <div className="flex-1 flex flex-col lg:flex-row w-full">
+            {/* Editor Section */}
+            <div className={cn("flex-1 flex flex-col border-r-2 border-black dark:border-white", showPreviewOnMobile ? "hidden lg:flex" : "flex")}>
+               <div className="flex items-center justify-between border-b-2 border-black dark:border-white bg-white dark:bg-black dark:bg-black dark:bg-zinc-900 overflow-x-auto no-scrollbar shrink-0">
+                 <div className="flex">
+                   {(['html', 'css', 'js', 'php', 'react', 'md'] as const).map(tab => (
+                     <button
+                       key={tab}
+                       onClick={() => setActiveTab(tab)}
+                       className={cn(
+                         "px-4 py-2 text-xs font-bold uppercase tracking-widest border-r-2 border-black dark:border-white transition-colors",
+                         activeTab === tab ? "bg-black text-white dark:bg-white dark:text-black" : "hover:bg-zinc-200 dark:hover:bg-zinc-800"
+                       )}
+                     >
+                       {tab}
+                     </button>
+                   ))}
+                 </div>
+                 <button onClick={() => setShowPreviewOnMobile(true)} className="lg:hidden px-4 py-2 border-l-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0">
+                   <Play size={16} />
+                 </button>
+               </div>
+               <div className="flex-1 relative">
+                 <CodeEditor 
+                   ref={editorRef}
+                   language={activeTab === 'js' || activeTab === 'react' ? 'javascript' : activeTab === 'md' ? 'markdown' : activeTab}
+                   value={activeProject.code[activeTab]}
+                   onChange={(val) => updateActiveProjectCode({ [activeTab]: val || '' })}
+                   theme={theme}
+                 />
+               </div>
+            </div>
 
             {/* Preview Section */}
-            <AnimatePresence mode="wait">
-              {(mobileTab === 'preview' || window.innerWidth >= 1024) && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className={`flex-1 flex flex-col bg-slate-100 dark:bg-slate-900 ${mobileTab !== 'preview' ? 'hidden lg:flex' : 'flex'}`}
-                >
-                  <Preview 
-                    html={debouncedCode.html}
-                    css={debouncedCode.css}
-                    js={debouncedCode.js}
-                    react={debouncedCode.react}
-                    md={debouncedCode.md}
-                    activeTab={activeTab}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
+            <div className={cn("flex-1 flex flex-col", !showPreviewOnMobile ? "hidden lg:flex" : "flex")}>
+               <div className="flex items-center justify-between border-b-2 border-black dark:border-white bg-white dark:bg-black dark:bg-black dark:bg-zinc-900 px-4 py-2 shrink-0">
+                 <span className="text-xs font-bold uppercase tracking-widest">Preview</span>
+                 <button onClick={() => setShowPreviewOnMobile(false)} className="lg:hidden hover:text-emerald-500 transition-colors">
+                   <Code2 size={16} />
+                 </button>
+               </div>
+               <div className="flex-1 bg-white dark:bg-black dark:bg-zinc-900 overflow-hidden">
+                 <Preview 
+                   html={debouncedCode.html}
+                   css={debouncedCode.css}
+                   js={debouncedCode.js}
+                   react={debouncedCode.react}
+                   md={debouncedCode.md}
+                   activeTab={activeTab}
+                 />
+               </div>
+            </div>
+          </div>
         )}
-      </div>
-    </div>
-
-        {/* Chat Section (Mobile Overlay) */}
-        <AnimatePresence>
-          {mobileTab === 'chat' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="lg:hidden fixed inset-0 z-50 bg-white dark:bg-slate-950 flex flex-col"
-            >
-              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
-                <h3 className="font-bold flex items-center gap-2">
-                  <MessageSquare size={18} className="text-emerald-500" />
-                  AI Assistant
-                </h3>
-                <button onClick={() => setMobileTab('editor')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-                  <Code2 size={20} />
-                </button>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <Chat 
-                  onCodeGenerated={handleAICodeGenerated} 
-                  currentCode={activeProject.code} 
-                  theme={theme}
-                  assets={activeProject.assets || []}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Toolbox Section (Mobile Overlay) */}
-        <AnimatePresence>
-          {mobileTab === 'toolbox' && (
-            <motion.div 
-              initial={{ opacity: 0, x: -100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              className="lg:hidden fixed inset-0 z-50 bg-white dark:bg-slate-950 flex flex-col"
-            >
-              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
-                <h3 className="font-bold flex items-center gap-2">
-                  <Layers size={18} className="text-emerald-500" />
-                  Toolbox
-                </h3>
-                <button onClick={() => setMobileTab('editor')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-                  <Code2 size={20} />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <FileExplorer 
-                  projects={projects}
-                  activeProjectId={activeProjectId}
-                  onSelectProject={setActiveProjectId}
-                  onCreateProject={createProject}
-                  onDeleteProject={deleteProject}
-                  onRenameProject={renameProject}
-                  onRestoreVersion={(updatedProject) => {
-                    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-                  }}
-                  token={token}
-                  onRefreshProjects={refreshProjects}
-                />
-                <TasksPanel
-                  project={activeProject}
-                  token={token}
-                  onUpdateProject={(updatedProject) => {
-                    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-                  }}
-                />
-                <GitPanel 
-                  project={activeProject} 
-                  token={token} 
-                  onRestoreCommit={(updatedProject) => {
-                    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-                  }}
-                />
-                <Toolbox 
-                  onInsertComponent={handleInsertComponent}
-                  projects={projects}
-                  activeProjectId={activeProjectId}
-                  onSelectProject={setActiveProjectId}
-                  assets={activeProject.assets || []}
-                  onUploadAsset={handleUploadAsset}
-                  onDeleteAsset={handleDeleteAsset}
-                  token={token}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </main>
 
-      {/* Mobile Navigation Bar */}
-      <nav className="lg:hidden flex items-center justify-around h-16 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 px-4 pb-safe">
-        <button 
-          onClick={() => setMobileTab('editor')}
-          className={`flex flex-col items-center gap-1 transition-colors ${mobileTab === 'editor' ? 'text-emerald-500' : 'text-slate-400'}`}
-        >
-          <Code2 size={20} />
-          <span className="text-[10px] font-medium">Editor</span>
-        </button>
-        <button 
-          onClick={() => setMobileTab('preview')}
-          className={`flex flex-col items-center gap-1 transition-colors ${mobileTab === 'preview' ? 'text-emerald-500' : 'text-slate-400'}`}
-        >
-          <Play size={20} />
-          <span className="text-[10px] font-medium">Preview</span>
-        </button>
-        <button 
-          onClick={() => { setMobileTab('security'); setShowSecurity(true); }}
-          className={`flex flex-col items-center gap-1 transition-colors ${mobileTab === 'security' ? 'text-emerald-500' : 'text-slate-400'}`}
-        >
-          <Shield size={20} />
-          <span className="text-[10px] font-medium">Security</span>
-        </button>
-        <button 
-          onClick={() => { setMobileTab('chat'); setShowSecurity(false); }}
-          className={`flex flex-col items-center gap-1 transition-colors ${mobileTab === 'chat' ? 'text-emerald-500' : 'text-slate-400'}`}
-        >
-          <MessageSquare size={20} />
-          <span className="text-[10px] font-medium">Chat</span>
-        </button>
-        <button 
-          onClick={() => setMobileTab('toolbox')}
-          className={`flex flex-col items-center gap-1 transition-colors ${mobileTab === 'toolbox' ? 'text-emerald-500' : 'text-slate-400'}`}
-        >
-          <Layers size={20} />
-          <span className="text-[10px] font-medium">Tools</span>
-        </button>
-      </nav>
+      {/* Overlays */}
+      <AnimatePresence>
+        {activeOverlay === 'menu' && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed inset-0 z-[100] bg-white dark:bg-zinc-950 flex flex-col"
+          >
+            <div className="h-16 border-b-2 border-black dark:border-white flex items-center justify-between px-4 shrink-0">
+              <h2 className="font-bold uppercase tracking-widest">Menu</h2>
+              <button onClick={() => setActiveOverlay('none')} className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 content-start">
+              <MenuButton icon={Folder} label="Files" onClick={() => setActiveOverlay('files')} />
+              <MenuButton icon={MessageSquare} label="AI Chat" onClick={() => setActiveOverlay('chat')} />
+              <MenuButton icon={Layers} label="Toolbox" onClick={() => setActiveOverlay('toolbox')} />
+              <MenuButton icon={GitBranch} label="Git" onClick={() => setActiveOverlay('git')} />
+              <MenuButton icon={CheckSquare} label="Tasks" onClick={() => setActiveOverlay('tasks')} />
+              <MenuButton icon={Shield} label="Security" onClick={() => setActiveOverlay('security')} />
+              <MenuButton icon={User} label="Profile" onClick={() => { setIsProfileOpen(true); setActiveOverlay('none'); }} />
+              <MenuButton icon={theme === 'dark' ? Sun : Moon} label="Theme" onClick={() => { toggleTheme(); setActiveOverlay('none'); }} />
+              <MenuButton icon={Share2} label="Share" onClick={() => { setIsShareOpen(true); setActiveOverlay('none'); }} />
+              <MenuButton icon={Search} label="Search" onClick={() => { setIsSearchOpen(true); setActiveOverlay('none'); }} />
+            </div>
+          </motion.div>
+        )}
+
+        {activeOverlay === 'files' && (
+           <OverlayWrapper title="Files" onClose={() => setActiveOverlay('menu')}>
+             <div className="flex-1 overflow-y-auto">
+               <FileExplorer 
+                 projects={projects}
+                 activeProjectId={activeProjectId}
+                 onSelectProject={(id) => { setActiveProjectId(id); setActiveOverlay('none'); }}
+                 onCreateProject={createProject}
+                 onDeleteProject={deleteProject}
+                 onRenameProject={renameProject}
+                 onRestoreVersion={(updatedProject) => {
+                   setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+                 }}
+                 token={token}
+                 onRefreshProjects={refreshProjects}
+               />
+             </div>
+           </OverlayWrapper>
+        )}
+        {activeOverlay === 'chat' && (
+           <OverlayWrapper title="AI Chat" onClose={() => setActiveOverlay('menu')}>
+             <Chat 
+               onCodeGenerated={handleAICodeGenerated} 
+               currentCode={activeProject.code} 
+               theme={theme}
+               assets={activeProject.assets || []}
+             />
+           </OverlayWrapper>
+        )}
+        {activeOverlay === 'toolbox' && (
+           <OverlayWrapper title="Toolbox" onClose={() => setActiveOverlay('menu')}>
+             <div className="flex-1 overflow-y-auto">
+               <Toolbox 
+                 onInsertComponent={handleInsertComponent}
+                 projects={projects}
+                 activeProjectId={activeProjectId}
+                 onSelectProject={setActiveProjectId}
+                 assets={activeProject.assets || []}
+                 onUploadAsset={handleUploadAsset}
+                 onDeleteAsset={handleDeleteAsset}
+                 token={token}
+               />
+             </div>
+           </OverlayWrapper>
+        )}
+        {activeOverlay === 'git' && (
+           <OverlayWrapper title="Source Control" onClose={() => setActiveOverlay('menu')}>
+             <div className="flex-1 overflow-y-auto">
+               <GitPanel 
+                 project={activeProject} 
+                 token={token} 
+                 onRestoreCommit={(updatedProject) => {
+                   setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+                 }}
+               />
+             </div>
+           </OverlayWrapper>
+        )}
+        {activeOverlay === 'tasks' && (
+           <OverlayWrapper title="Tasks" onClose={() => setActiveOverlay('menu')}>
+             <div className="flex-1 overflow-y-auto">
+               <TasksPanel
+                 project={activeProject}
+                 token={token}
+                 onUpdateProject={(updatedProject) => {
+                   setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+                 }}
+               />
+             </div>
+           </OverlayWrapper>
+        )}
+        {activeOverlay === 'security' && (
+           <OverlayWrapper title="Security" onClose={() => setActiveOverlay('menu')}>
+             <div className="flex-1 overflow-y-auto">
+               <SecurityDashboard 
+                 project={activeProject}
+                 onScan={handleSecurityScan}
+                 onRemediate={handleRemediate}
+                 isScanning={isScanning}
+               />
+             </div>
+           </OverlayWrapper>
+        )}
+      </AnimatePresence>
 
       {/* Modals */}
       <AnimatePresence>

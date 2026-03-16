@@ -60,5 +60,47 @@ export const TEMPLATES = [
     </div>
   </div>
 </section>`
+  },
+  {
+    id: 'contact-form',
+    name: 'Modern Contact Form',
+    description: 'Clean, responsive contact form with validation styles',
+    html: `<section class="py-24 bg-zinc-50 dark:bg-zinc-950 px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-black p-10 md:p-16 rounded-[2.5rem] shadow-2xl border border-black/5 dark:border-white/10">
+      <div class="text-center mb-12">
+        <h2 class="nike-text text-5xl mb-4 dark:text-white">GET IN TOUCH.</h2>
+        <p class="text-slate-500 dark:text-zinc-400">We're here to help and answer any question you might have.</p>
+      </div>
+      
+      <form class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase tracking-widest text-slate-400">First Name</label>
+            <input type="text" class="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent dark:text-white transition-colors" placeholder="John" />
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Last Name</label>
+            <input type="text" class="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent dark:text-white transition-colors" placeholder="Doe" />
+          </div>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Email Address</label>
+          <input type="email" class="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent dark:text-white transition-colors" placeholder="john@example.com" />
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Message</label>
+          <textarea rows="4" class="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent dark:text-white transition-colors resize-none" placeholder="How can we help you?"></textarea>
+        </div>
+        
+        <button type="submit" class="w-full py-4 bg-black dark:bg-white text-white dark:text-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-xl">
+          Send Message
+        </button>
+      </form>
+    </div>
+  </div>
+</section>`
   }
 ];

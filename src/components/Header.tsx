@@ -1,9 +1,6 @@
 import React from 'react';
-import { Code2, Share2, Play, Download, Github, User, ChevronRight, Sun, Moon, Palette, Undo2, Redo2, Search, LogIn, Shield, Save, RefreshCw, Check } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Code2, Menu, Save, Check, RefreshCw, Play } from 'lucide-react';
 import { cn } from '../lib/utils';
-
-import { Tooltip } from './Tooltip';
 import { UserProfile } from '../types';
 
 interface HeaderProps {
@@ -21,23 +18,19 @@ interface HeaderProps {
   onToggleSecurity: () => void;
   showSecurity: boolean;
   onOpenShare: () => void;
+  mainView: 'editor' | 'explore' | 'dashboard' | 'profile';
+  setMainView: (view: 'editor' | 'explore' | 'dashboard' | 'profile') => void;
+  onOpenMenu: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ 
-  theme,
-  onToggleTheme,
-  onOpenProfile,
-  onOpenTheme,
-  onOpenAuth,
-  onOpenSearch,
-  user,
+export const Header: React.FC<HeaderProps> = ({
   activeProjectName,
-  onRun,
   onSave,
   isSaving,
-  onToggleSecurity,
-  showSecurity,
-  onOpenShare
+  mainView,
+  setMainView,
+  onOpenMenu,
+  onRun
 }) => {
   const [showSaved, setShowSaved] = React.useState(false);
   const prevIsSaving = React.useRef(isSaving);
@@ -52,134 +45,42 @@ export const Header: React.FC<HeaderProps> = ({
   }, [isSaving]);
 
   return (
-    <header className="h-16 md:h-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 z-50 transition-colors duration-300">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 md:w-10 md:h-10 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 transition-all hover:rotate-12">
-          <Code2 className="w-5 h-5 text-white" />
+    <header className="h-16 bg-white dark:bg-black border-b-2 border-black dark:border-white flex items-center justify-between px-2 sm:px-4 z-50 sticky top-0">
+      <div className="flex items-center gap-2 sm:gap-4">
+        <div className="w-10 h-10 bg-black dark:bg-white flex items-center justify-center border-2 border-black dark:border-white shrink-0">
+          <Code2 className="w-6 h-6 text-white dark:text-black" />
         </div>
-        <div className="hidden sm:block">
-          <h1 className="font-bold text-lg md:text-xl leading-none dark:text-white">DIRTNAPP</h1>
-          <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-            <span className="text-emerald-500">{activeProjectName}</span>
-          </div>
+        <div className="hidden md:flex items-center border-2 border-black dark:border-white bg-white dark:bg-black dark:bg-black dark:bg-black dark:bg-zinc-900">
+          {['editor', 'explore', 'dashboard'].map(view => (
+            <button
+              key={view}
+              onClick={() => setMainView(view as any)}
+              className={cn(
+                "px-4 lg:px-6 py-2 text-xs font-bold uppercase tracking-widest transition-colors border-r-2 border-black dark:border-white last:border-r-0",
+                mainView === view ? "bg-black text-white dark:bg-white dark:text-black" : "hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
+              )}
+            >
+              {view}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex items-center gap-2 md:gap-4">
-        <div className="flex items-center gap-1 md:gap-2">
-          <button 
-            onClick={onSave}
-            disabled={isSaving}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-bold transition-all shadow-lg",
-              isSaving 
-                ? "bg-emerald-500/20 text-emerald-500 cursor-not-allowed" 
-                : showSaved
-                  ? "bg-emerald-500 text-white shadow-emerald-500/20"
-                  : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 hover:text-emerald-500"
-            )}
-            title="Save Project"
-          >
-            {isSaving ? (
-              <RefreshCw size={16} className="animate-spin" />
-            ) : showSaved ? (
-              <Check size={16} />
-            ) : (
-              <Save size={16} />
-            )}
-            <span className="hidden lg:inline">
-              {isSaving ? 'Saving...' : showSaved ? 'Saved' : 'Save Project'}
-            </span>
-          </button>
-
-          <button 
-            onClick={onOpenSearch}
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-400 hover:border-emerald-500/50 transition-all group"
-            title="Search Projects (Ctrl+K)"
-          >
-            <Search size={16} className="group-hover:text-emerald-500 transition-colors" />
-            <span className="text-xs font-medium">Search projects...</span>
-            <kbd className="hidden lg:inline-flex h-5 select-none items-center gap-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 font-mono text-[10px] font-medium opacity-100">
-              <span className="text-xs">⌘</span>K
-            </kbd>
-          </button>
-
-          <button 
-            onClick={onOpenSearch}
-            className="md:hidden p-2 text-slate-400 hover:text-emerald-500 transition-colors"
-            title="Search Projects"
-          >
-            <Search size={20} />
-          </button>
-
-          <button 
-            onClick={onOpenShare}
-            className="p-2 text-slate-400 hover:text-emerald-500 transition-colors"
-            title="Share Project"
-          >
-            <Share2 size={20} />
-          </button>
-
-          <button 
-            onClick={onToggleSecurity}
-            className={cn(
-              "p-2 transition-colors",
-              showSecurity ? "text-emerald-500" : "text-slate-400 hover:text-emerald-500"
-            )}
-            title="Security Dashboard"
-          >
-            <Shield size={20} />
-          </button>
-
-          <button 
-            onClick={onToggleTheme}
-            className="p-2 text-slate-400 hover:text-emerald-500 transition-colors"
-            title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
-          
-          <button 
-            onClick={onOpenTheme}
-            className="p-2 text-slate-400 hover:text-emerald-500 transition-colors"
-            title="Theme Settings"
-          >
-            <Palette size={20} />
-          </button>
+      <div className="flex items-center gap-2">
+        <div className="text-xs font-bold uppercase tracking-widest hidden sm:block mr-2 px-4 py-2 border-2 border-black dark:border-white truncate max-w-[150px] lg:max-w-[300px]">
+          {activeProjectName}
         </div>
-
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
-
-        <button 
-          onClick={onRun}
-          className="hidden sm:flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-emerald-500/20"
-        >
-          <Play size={14} fill="currentColor" />
-          Run
-        </button>
-
-        {user ? (
-          <button 
-            onClick={onOpenProfile}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-800 hover:border-emerald-500 transition-all"
-          >
-            {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                <User size={20} />
-              </div>
-            )}
-          </button>
-        ) : (
-          <button 
-            onClick={onOpenAuth}
-            className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition-colors px-2"
-          >
-            <LogIn size={20} />
-            <span className="hidden md:inline">Sign In</span>
+        {onRun && (
+          <button onClick={onRun} className="md:hidden w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0">
+            <Play size={18} />
           </button>
         )}
+        <button onClick={onSave} disabled={isSaving} className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0">
+          {isSaving ? <RefreshCw size={18} className="animate-spin" /> : showSaved ? <Check size={18} /> : <Save size={18} />}
+        </button>
+        <button onClick={onOpenMenu} className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors bg-emerald-400 dark:bg-emerald-500 text-black shrink-0">
+          <Menu size={18} />
+        </button>
       </div>
     </header>
   );

@@ -145,7 +145,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
             Tasks
             {tasks.length > 0 && (
-              <span className="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded-full text-[9px]">
+              <span className="bg-slate-200 dark:bg-black dark:bg-zinc-900 px-1.5 py-0.5 border-2 border-black dark:border-white text-[9px]">
                 {tasks.length}
               </span>
             )}
@@ -166,7 +166,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {isAdding && (
-          <form onSubmit={handleSaveTask} className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+          <form onSubmit={handleSaveTask} className="space-y-3 bg-white dark:bg-black dark:bg-slate-900/50 p-3 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800">
             <input
               type="text"
               value={title}
@@ -212,7 +212,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="flex-1 py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs font-bold transition-colors"
+                      className="flex-1 py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-black dark:bg-zinc-900 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs font-bold transition-colors"
                     >
                       Cancel
                     </button>
@@ -222,7 +222,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
               
               {!isAdding && tasks.length === 0 ? (
                 <div className="text-center py-6">
-                  <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <div className="w-10 h-10 bg-white dark:bg-black dark:bg-black dark:bg-zinc-900 border-2 border-black dark:border-white flex items-center justify-center mx-auto mb-2">
                     <CheckSquare className="w-5 h-5 text-slate-400" />
                   </div>
                   <p className="text-xs text-slate-500">No tasks yet.</p>
@@ -230,7 +230,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
               ) : (
                 <div className="space-y-2">
                   {tasks.map(task => (
-                    <div key={task.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 hover:border-emerald-500/50 transition-colors">
+                    <div key={task.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-2 border-black dark:border-white p-3 hover:border-emerald-500/50 transition-colors">
                       <div className="flex items-start gap-3">
                         <button 
                           onClick={() => handleToggleComplete(task.id)}
@@ -266,7 +266,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({ project, token, onUpdate
                             <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${getPriorityColor(task.priority)}`}>
                               {task.priority}
                             </span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white dark:bg-black dark:bg-black dark:bg-zinc-900 text-slate-500 font-bold uppercase tracking-wider">
                               {task.status.replace('-', ' ')}
                             </span>
                           </div>

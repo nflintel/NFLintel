@@ -292,7 +292,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
         <button 
           onClick={fetchStatus}
           disabled={loading}
-          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-400"
+          className="p-1 hover:bg-slate-200 dark:hover:bg-black dark:bg-zinc-900 rounded transition-colors text-slate-400"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
         </button>
@@ -306,7 +306,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
               )}
               {!isRepo ? (
                 <div className="text-center space-y-4 py-8">
-                  <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 bg-emerald-500/10 border-2 border-black dark:border-white flex items-center justify-center mx-auto">
                     <GitBranch className="w-6 h-6 text-emerald-500" />
                   </div>
                   <div>
@@ -317,7 +317,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                     <button
                       onClick={handleInit}
                       disabled={loading}
-                      className="w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
+                      className="w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-black dark:border-white text-xs font-bold transition-colors disabled:opacity-50"
                     >
                       Initialize Repository
                     </button>
@@ -335,7 +335,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                         value={remoteUrl}
                         onChange={(e) => setRemoteUrl(e.target.value)}
                         placeholder="Git Repository URL"
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white"
+                        className="w-full bg-white dark:bg-black dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-2 border-black dark:border-white p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white"
                       />
                       <div className="grid grid-cols-2 gap-2">
                         <input
@@ -343,14 +343,14 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           placeholder="Username"
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white"
+                          className="w-full bg-white dark:bg-black dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-2 border-black dark:border-white p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white"
                         />
                         <input
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Token / Password"
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white"
+                          className="w-full bg-white dark:bg-black dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-2 border-black dark:border-white p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white"
                         />
                       </div>
                       {error && (
@@ -361,7 +361,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                       <button
                         onClick={handleClone}
                         disabled={loading || !remoteUrl}
-                        className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full px-4 py-2 bg-white dark:bg-black hover:bg-slate-200 dark:bg-black dark:bg-zinc-900 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-2 border-black dark:border-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {loading ? (
                           <RefreshCw size={14} className="animate-spin" />
@@ -384,7 +384,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                   <div>
                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center justify-between">
                       Changes
-                      <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full text-[10px]">
+                      <span className="bg-slate-200 dark:bg-black dark:bg-zinc-900 text-slate-600 dark:text-slate-300 px-2 py-0.5 border-2 border-black dark:border-white text-[10px]">
                         {changes.length}
                       </span>
                     </h4>
@@ -392,7 +392,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                     {changes.length > 0 ? (
                       <div className="space-y-1 mb-4">
                         {changes.map((change, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs py-1 px-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded">
+                          <div key={idx} className="flex items-center gap-2 text-xs py-1 px-2 hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-zinc-900 rounded">
                             <span className="text-emerald-500 font-mono">M</span>
                             <span className="dark:text-slate-300 truncate">{change[0]}</span>
                           </div>
@@ -407,13 +407,13 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                         value={commitMessage}
                         onChange={(e) => setCommitMessage(e.target.value)}
                         placeholder="Commit message..."
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white resize-none h-20"
+                        className="w-full bg-white dark:bg-black dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-2 border-black dark:border-white p-2 text-xs focus:outline-none focus:border-emerald-500 transition-colors dark:text-white resize-none h-20"
                       />
                       <div className="flex gap-2">
                         <button
                           type="submit"
                           disabled={loading || !commitMessage.trim() || changes.length === 0}
-                          className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-black dark:border-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                           <Check size={14} />
                           Commit
@@ -423,7 +423,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                             type="button"
                             onClick={handlePull}
                             disabled={loading}
-                            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2"
+                            className="px-3 py-2 bg-white dark:bg-black hover:bg-slate-200 dark:bg-black dark:bg-zinc-900 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-2 border-black dark:border-white text-xs font-bold transition-colors flex items-center justify-center gap-2"
                             title="Pull from Remote"
                           >
                             <DownloadCloud size={14} />
@@ -433,7 +433,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                         <button
                           type="button"
                           onClick={() => setShowRemoteForm(!showRemoteForm)}
-                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-center"
+                          className="px-3 py-2 bg-white dark:bg-black hover:bg-slate-200 dark:bg-black dark:bg-zinc-900 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-2 border-black dark:border-white text-xs font-bold transition-colors flex items-center justify-center"
                           title="Remote Options"
                         >
                           <UploadCloud size={14} />
@@ -442,7 +442,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                     </form>
 
                     {showRemoteForm && (
-                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div className="p-3 bg-white dark:bg-black dark:bg-black dark:bg-zinc-900/50 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800 space-y-3">
                         <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">Remote Repository</h4>
                         {error && (
                           <div className="p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-500">
@@ -508,10 +508,10 @@ export const GitPanel: React.FC<GitPanelProps> = ({ project, token, onRestoreCom
                       <div className="space-y-3 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
                         {commits.map((commit: any) => (
                           <div key={commit.oid} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white dark:border-slate-950 bg-slate-200 dark:bg-slate-700 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                            <div className="flex items-center justify-center w-4 h-4 border-2 border-black dark:border-white border border-white dark:border-slate-950 bg-slate-200 dark:bg-slate-700 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
                               <GitCommit size={10} />
                             </div>
-                            <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm group-hover:border-emerald-500/50 transition-colors">
+                            <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] p-3 border-2 border-black dark:border-white border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:border-emerald-500/50 transition-colors">
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs font-bold dark:text-white truncate pr-2" title={commit.commit.message}>{commit.commit.message}</span>
                                 <div className="flex items-center gap-2">

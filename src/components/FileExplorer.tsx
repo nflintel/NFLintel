@@ -215,7 +215,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         <div className="space-y-1">
               {isCreating && (
                 <div className="px-2 py-1">
-                  <div className="flex flex-col gap-2 bg-white dark:bg-slate-900 border border-emerald-500/50 rounded-lg p-2">
+                  <div className="flex flex-col gap-2 bg-white dark:bg-slate-900 border border-emerald-500/50 border-2 border-black dark:border-white p-2">
                     <div className="flex items-center gap-2">
                       <FileCode size={14} className="text-emerald-500 shrink-0" />
                       <input 
@@ -238,7 +238,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                       <button onClick={handleCreate} className="text-emerald-500 hover:bg-emerald-500/10 p-1 rounded">
                         <Check size={12} />
                       </button>
-                      <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded">
+                      <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900 p-1 rounded">
                         <X size={12} />
                       </button>
                     </div>
@@ -250,10 +250,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 <div key={project.id} className="group">
                   <div 
                     className={cn(
-                      "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all",
+                      "flex items-center justify-between px-3 py-2 border-2 border-black dark:border-white cursor-pointer transition-all",
                       activeProjectId === project.id 
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400"
+                        : "hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900/50 text-slate-600 dark:text-slate-400"
                     )}
                     onClick={() => onSelectProject(project.id)}
                   >
@@ -266,21 +266,21 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             value={editingName}
                             onChange={(e) => setEditingName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleRename(project.id)}
-                            className="bg-white dark:bg-slate-800 text-xs px-1 rounded border border-emerald-500 focus:outline-none w-full dark:text-white"
+                            className="bg-white dark:bg-black dark:bg-black dark:bg-zinc-900 text-xs px-1 rounded border border-emerald-500 focus:outline-none w-full dark:text-white"
                             placeholder="Project name"
                           />
                           <input 
                             value={editingDescription}
                             onChange={(e) => setEditingDescription(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleRename(project.id)}
-                            className="bg-white dark:bg-slate-800 text-[10px] px-1 rounded border border-emerald-500 focus:outline-none w-full dark:text-white"
+                            className="bg-white dark:bg-black dark:bg-black dark:bg-zinc-900 text-[10px] px-1 rounded border border-emerald-500 focus:outline-none w-full dark:text-white"
                             placeholder="Description (optional)"
                           />
                           <div className="flex gap-1">
                             <button onClick={() => handleRename(project.id)} className="text-emerald-500 hover:bg-emerald-500/10 p-0.5 rounded">
                               <Check size={12} />
                             </button>
-                            <button onClick={() => setEditingProjectId(null)} className="text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 p-0.5 rounded">
+                            <button onClick={() => setEditingProjectId(null)} className="text-slate-400 hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900 p-0.5 rounded">
                               <X size={12} />
                             </button>
                           </div>
@@ -358,60 +358,72 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             <span>Loading history...</span>
                           </div>
                         ) : (gitCommits.length > 0 || projectVersions.length > 0) ? (
-                          <div className="space-y-2">
+                          <div className="space-y-3 mt-2">
                             {/* Git Commits */}
-                            {gitCommits.map((commit) => (
-                              <div 
-                                key={commit.oid}
-                                className="flex items-center justify-between p-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800/30 group/version"
-                              >
-                                <div className="flex flex-col overflow-hidden">
-                                  <div className="flex items-center gap-1">
-                                    <GitBranch size={8} className="text-emerald-500" />
-                                    <span className="text-[10px] font-bold dark:text-slate-300 truncate">
-                                      {commit.commit.message.split('\n')[0]}
-                                    </span>
-                                  </div>
-                                  <span className="text-[8px] text-slate-400">
-                                    {new Date(commit.commit.author.timestamp * 1000).toLocaleString()} • {commit.oid.substring(0, 7)}
-                                  </span>
+                            {gitCommits.length > 0 && (
+                              <div className="space-y-1">
+                                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1 flex items-center gap-1">
+                                  <GitBranch size={10} /> Git History
                                 </div>
-                                <button 
-                                  onClick={() => handleRestoreVersion(project.id, commit.oid, true)}
-                                  className="p-1 opacity-0 group-hover/version:opacity-100 hover:bg-emerald-500/10 text-emerald-500 rounded transition-all"
-                                  title="Restore Commit"
-                                >
-                                  <RotateCcw size={10} />
-                                </button>
+                                {gitCommits.map((commit) => (
+                                  <div 
+                                    key={commit.oid}
+                                    className="flex items-center justify-between p-1.5 rounded hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900/30 group/version"
+                                  >
+                                    <div className="flex flex-col overflow-hidden">
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-[10px] font-bold dark:text-slate-300 truncate">
+                                          {commit.commit.message.split('\n')[0]}
+                                        </span>
+                                      </div>
+                                      <span className="text-[8px] text-slate-400">
+                                        {new Date(commit.commit.author.timestamp * 1000).toLocaleString()} • {commit.oid.substring(0, 7)}
+                                      </span>
+                                    </div>
+                                    <button 
+                                      onClick={() => handleRestoreVersion(project.id, commit.oid, true)}
+                                      className="p-1 opacity-0 group-hover/version:opacity-100 hover:bg-emerald-500/10 text-emerald-500 rounded transition-all shrink-0"
+                                      title="Restore Commit"
+                                    >
+                                      <RotateCcw size={12} />
+                                    </button>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
 
                             {/* Snapshots */}
-                            {projectVersions.slice().reverse().map((version, idx) => (
-                              <div 
-                                key={version.id}
-                                className="flex items-center justify-between p-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800/30 group/version"
-                              >
-                                <div className="flex flex-col overflow-hidden">
-                                  <div className="flex items-center gap-1">
-                                    <History size={8} className="text-slate-400" />
-                                    <span className="text-[10px] font-medium dark:text-slate-300 truncate">
-                                      {version.message || `Snapshot v${projectVersions.length - idx}`}
-                                    </span>
-                                  </div>
-                                  <span className="text-[8px] text-slate-400">
-                                    {new Date(version.updatedAt).toLocaleString()}
-                                  </span>
+                            {projectVersions.length > 0 && (
+                              <div className="space-y-1">
+                                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1 flex items-center gap-1">
+                                  <History size={10} /> Auto-Snapshots
                                 </div>
-                                <button 
-                                  onClick={() => handleRestoreVersion(project.id, version.id, false)}
-                                  className="p-1 opacity-0 group-hover/version:opacity-100 hover:bg-emerald-500/10 text-emerald-500 rounded transition-all"
-                                  title="Restore Snapshot"
-                                >
-                                  <RotateCcw size={10} />
-                                </button>
+                                {projectVersions.slice().reverse().map((version, idx) => (
+                                  <div 
+                                    key={version.id}
+                                    className="flex items-center justify-between p-1.5 rounded hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900/30 group/version"
+                                  >
+                                    <div className="flex flex-col overflow-hidden">
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-[10px] font-medium dark:text-slate-300 truncate">
+                                          {version.message || `Snapshot v${projectVersions.length - idx}`}
+                                        </span>
+                                      </div>
+                                      <span className="text-[8px] text-slate-400">
+                                        {new Date(version.updatedAt).toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <button 
+                                      onClick={() => handleRestoreVersion(project.id, version.id, false)}
+                                      className="p-1 opacity-0 group-hover/version:opacity-100 hover:bg-emerald-500/10 text-emerald-500 rounded transition-all shrink-0"
+                                      title="Restore Snapshot"
+                                    >
+                                      <RotateCcw size={12} />
+                                    </button>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
                           </div>
                         ) : (
                           <span className="text-[10px] text-slate-400 italic py-1">No history</span>
@@ -424,7 +436,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
               <button
                 onClick={() => setIsCreating(true)}
-                className="w-full mt-2 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 hover:text-emerald-500 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-xs font-medium"
+                className="w-full mt-2 flex items-center justify-center gap-2 px-3 py-2 border-2 border-black dark:border-white border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 hover:text-emerald-500 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-xs font-medium"
               >
                 <Plus size={14} />
                 New Project
@@ -433,7 +445,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
       {/* Scrapes Section */}
       <div 
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-200 dark:border-slate-800"
+        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900/50 transition-colors border-t border-slate-200 dark:border-slate-800"
         onClick={() => setIsScrapesExpanded(!isScrapesExpanded)}
       >
         <div className="flex items-center gap-2">
@@ -470,7 +482,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 scrapes.map((scrape, idx) => (
                   <div 
                     key={idx}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 group transition-all"
+                    className="flex items-center justify-between px-3 py-2 border-2 border-black dark:border-white hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-black dark:bg-zinc-900/50 text-slate-600 dark:text-slate-400 group transition-all"
                   >
                     <div className="flex items-center gap-2 overflow-hidden flex-1">
                       <DownloadCloud size={14} className="text-slate-400" />

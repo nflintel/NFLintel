@@ -5,6 +5,7 @@ import Markdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
 import { CodeEditor } from './CodeEditor';
 import { CodeState, ProjectAsset } from '../types';
+import { useAIModels } from '../hooks/useAIModels';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -19,8 +20,11 @@ interface ChatProps {
 }
 
 export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme, assets }) => {
+  const { models, activeModelId } = useAIModels();
+  const activeModel = models.find(m => m.id === activeModelId) || models[0];
+
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hello! I'm your AI assistant. Tell me what you'd like to build or modify in your code." }
+    { role: 'assistant', content: `Hello! I'm your AI assistant powered by ${activeModel.name}. Tell me what you'd like to build or modify in your code.` }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -104,13 +108,13 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
 
   return (
     <div className="flex flex-col h-full bg-transparent">
-      <div className="px-8 py-6 border-b border-black/5 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-black/50 backdrop-blur-xl">
-        <div className="flex items-center gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+      <div className="px-8 py-6 border-b border-black dark:border-white flex items-center justify-between bg-white/50 dark:bg-black/50 backdrop-blur-xl">
+        <div className="flex items-center gap-1 p-1 bg-white dark:bg-black dark:bg-zinc-800 border-2 border-black dark:border-white">
           <button
             onClick={() => setActiveView('chat')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 border-2 border-black dark:border-white text-[10px] font-bold uppercase tracking-widest transition-all ${
               activeView === 'chat' 
-                ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' 
+                ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]' 
                 : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'
             }`}
           >
@@ -119,9 +123,9 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
           </button>
           <button
             onClick={() => setActiveView('code')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 border-2 border-black dark:border-white text-[10px] font-bold uppercase tracking-widest transition-all ${
               activeView === 'code' 
-                ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' 
+                ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]' 
                 : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'
             }`}
           >
@@ -129,7 +133,7 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
             Code
           </button>
         </div>
-        <div className="p-2 bg-accent/10 rounded-lg">
+        <div className="p-2 bg-accent/10 border-2 border-black dark:border-white">
           <Sparkles className="w-4 h-4 text-accent" />
         </div>
       </div>
@@ -201,13 +205,13 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Generated Source</h3>
                 <button 
                   onClick={handleCopy}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                  className="flex items-center gap-2 px-3 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-black dark:bg-zinc-800 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
                 >
                   {isCopied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                   {isCopied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              <div className="flex-1 rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 shadow-inner">
+              <div className="flex-1 border-2 border-black dark:border-white overflow-hidden border border-black dark:border-white shadow-inner">
                 <CodeEditor 
                   value={lastGeneratedCode}
                   language={targetLang === 'all' ? 'html' : targetLang === 'js' ? 'javascript' : targetLang === 'react' ? 'javascript' : targetLang === 'md' ? 'markdown' : targetLang}
@@ -220,17 +224,17 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
         </AnimatePresence>
       </div>
 
-      <div className="p-8 border-t border-black/5 dark:border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-xl space-y-4">
+      <div className="p-8 border-t border-black dark:border-white bg-white/50 dark:bg-black/50 backdrop-blur-xl space-y-4">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+            <div className="flex gap-1 p-1 bg-white dark:bg-black dark:bg-zinc-800 border-2 border-black dark:border-white">
               {(['all', 'html', 'css', 'js', 'react', 'php', 'md'] as const).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setTargetLang(lang)}
-                  className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${
+                  className={`px-3 py-1.5 border-2 border-black dark:border-white text-[9px] font-bold uppercase tracking-widest transition-all ${
                     targetLang === lang 
-                      ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' 
+                      ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]' 
                       : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'
                   }`}
                 >
@@ -239,14 +243,14 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
               ))}
             </div>
 
-            <div className="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+            <div className="flex gap-1 p-1 bg-white dark:bg-black dark:bg-zinc-800 border-2 border-black dark:border-white">
               {(['auto', 'page', 'component', 'function', 'snippet'] as const).map((fmt) => (
                 <button
                   key={fmt}
                   onClick={() => setTargetFormat(fmt)}
-                  className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${
+                  className={`px-3 py-1.5 border-2 border-black dark:border-white text-[9px] font-bold uppercase tracking-widest transition-all ${
                     targetFormat === fmt 
-                      ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' 
+                      ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]' 
                       : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'
                   }`}
                 >
@@ -279,7 +283,7 @@ export const Chat: React.FC<ChatProps> = ({ currentCode, onCodeGenerated, theme,
           </button>
         </div>
         <p className="mt-4 text-[9px] text-zinc-400 text-center uppercase tracking-[0.3em] font-bold">
-          Powered by <span className="text-accent">Gemini 3.1 Pro</span>
+          Powered by <span className="text-accent">{activeModel.name}</span>
         </p>
       </div>
     </div>

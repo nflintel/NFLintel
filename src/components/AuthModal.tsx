@@ -50,23 +50,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-md bg-white dark:bg-zinc-950 rounded-[2.5rem] overflow-hidden shadow-2xl border border-black/5 dark:border-white/5"
+        className="w-full max-w-md bg-white dark:bg-zinc-950 border-2 border-black dark:border-white overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] border border-black dark:border-white"
       >
         <div className="p-8 md:p-12">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="nike-text text-3xl dark:text-white">
+            <h2 className="font-black uppercase tracking-widest text-3xl dark:text-white">
               {mode === 'login' ? 'Welcome Back' : 'Join the Lab'}
             </h2>
             <button 
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              className="p-2 border-2 border-black dark:border-white hover:bg-white dark:bg-black dark:hover:bg-black dark:bg-zinc-900 transition-colors"
             >
               <X className="w-5 h-5 dark:text-white" />
             </button>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 border-2 border-black dark:border-white flex items-center gap-3 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider">
               <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
@@ -83,7 +83,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
                     required
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
+                    className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
                     placeholder="EliteDev"
                   />
                 </div>
@@ -99,7 +99,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
+                  className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
                   placeholder="dev@deepsite.com"
                 />
               </div>
@@ -114,7 +114,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
+                  className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
                   placeholder="••••••••"
                 />
               </div>
@@ -123,7 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-2xl font-bold uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              className="w-full py-4 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white font-bold uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:scale-[0.98] transition-all disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

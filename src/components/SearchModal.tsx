@@ -72,9 +72,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: -20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-4xl bg-white dark:bg-zinc-950 rounded-[2.5rem] overflow-hidden shadow-2xl border border-black/5 dark:border-white/5 flex flex-col max-h-full"
+        className="w-full max-w-4xl bg-white dark:bg-zinc-950 border-2 border-black dark:border-white overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] border border-black dark:border-white flex flex-col max-h-full"
       >
-        <div className="p-6 md:p-8 border-b border-black/5 dark:border-white/5">
+        <div className="p-6 md:p-8 border-b border-black dark:border-white">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
@@ -84,7 +84,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search projects, code, or assets..."
-                className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
+                className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white py-4 pl-12 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all dark:text-white"
               />
               {query && (
                 <button
@@ -98,13 +98,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
             </div>
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className={`p-4 rounded-2xl border transition-all ${showFilters ? 'bg-black text-white dark:bg-white dark:text-black border-transparent' : 'bg-zinc-50 dark:bg-zinc-900 border-black/5 dark:border-white/10 text-zinc-400 hover:text-black dark:hover:text-white'}`}
+              className={`p-4 border-2 border-black dark:border-white border transition-all ${showFilters ? 'bg-black text-white dark:bg-white dark:text-black border-transparent' : 'bg-zinc-50 dark:bg-black dark:bg-zinc-900 border-black dark:border-white text-zinc-400 hover:text-black dark:hover:text-white'}`}
             >
               <Filter className="w-5 h-5" />
             </button>
             <button 
               onClick={onClose}
-              className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 text-zinc-400 hover:text-black dark:hover:text-white transition-all"
+              className="p-4 border-2 border-black dark:border-white bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white text-zinc-400 hover:text-black dark:hover:text-white transition-all"
             >
               <X className="w-5 h-5" />
             </button>
@@ -119,7 +119,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                 <button
                   key={idx}
                   onClick={() => setQuery(sq)}
-                  className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
+                  className="px-3 py-1 bg-white dark:bg-black dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-2 border-black dark:border-white text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
                 >
                   {sq}
                 </button>
@@ -143,7 +143,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                     <select 
                       value={filters.category}
                       onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                      className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white p-3 text-xs focus:outline-none dark:text-white"
                     >
                       <option value="">All Categories</option>
                       <option value="web">Web App</option>
@@ -162,7 +162,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                       placeholder="0-100"
                       value={filters.minConfidence}
                       onChange={(e) => setFilters({ ...filters, minConfidence: e.target.value })}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                      className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white p-3 text-xs focus:outline-none dark:text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -173,7 +173,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                       type="date"
                       value={filters.startDate}
                       onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                      className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white p-3 text-xs focus:outline-none dark:text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -184,7 +184,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                       type="date"
                       value={filters.endDate}
                       onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                      className="w-full bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white p-3 text-xs focus:outline-none dark:text-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -195,7 +195,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                       <select 
                         value={filters.sort}
                         onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-                        className="flex-1 bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl p-3 text-xs focus:outline-none dark:text-white"
+                        className="flex-1 bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white p-3 text-xs focus:outline-none dark:text-white"
                       >
                         <option value="updatedAt">Date Updated</option>
                         <option value="name">Project Name</option>
@@ -203,7 +203,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                       </select>
                       <button 
                         onClick={() => setFilters({ ...filters, order: filters.order === 'asc' ? 'desc' : 'asc' })}
-                        className="p-3 bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-xl text-zinc-400 hover:text-black dark:hover:text-white transition-all"
+                        className="p-3 bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white border-2 border-black dark:border-white text-zinc-400 hover:text-black dark:hover:text-white transition-all"
                       >
                         {filters.order === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
                       </button>
@@ -230,9 +230,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onClose, onSelectProje
                     onSelectProject(project.id);
                     onClose();
                   }}
-                  className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-[1.5rem] hover:border-black dark:hover:border-white transition-all group text-left"
+                  className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-black dark:bg-zinc-900 border border-black dark:border-white rounded-[1.5rem] hover:border-black dark:hover:border-white transition-all group text-left"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-lg shrink-0">
+                  <div className="w-12 h-12 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-lg shrink-0">
                     {project.name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">

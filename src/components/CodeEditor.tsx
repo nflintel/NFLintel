@@ -113,7 +113,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({ langu
                 editorRef.current.trigger('keyboard', 'undo', null);
               }
             }}
-            className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-emerald-500 rounded-lg backdrop-blur-sm transition-all"
+            className="p-2 bg-black dark:bg-zinc-900/50 hover:bg-slate-700/50 text-slate-400 hover:text-emerald-500 border-2 border-black dark:border-white backdrop-blur-sm transition-all"
             title="Undo"
           >
             <Undo2 size={16} />
@@ -124,7 +124,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({ langu
                 editorRef.current.trigger('keyboard', 'redo', null);
               }
             }}
-            className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-emerald-500 rounded-lg backdrop-blur-sm transition-all"
+            className="p-2 bg-black dark:bg-zinc-900/50 hover:bg-slate-700/50 text-slate-400 hover:text-emerald-500 border-2 border-black dark:border-white backdrop-blur-sm transition-all"
             title="Redo"
           >
             <Redo2 size={16} />

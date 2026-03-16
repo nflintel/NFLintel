@@ -100,13 +100,13 @@ export function useProjects(token: string | null) {
     ));
   };
 
-  const createProject = (name: string, description?: string) => {
+  const createProject = (name: string, description?: string, code?: CodeState) => {
     const sanitizedDescription = description ? DOMPurify.sanitize(description.trim()) : undefined;
     const newProject: Project = {
       id: Math.random().toString(36).substr(2, 9),
       name,
       description: sanitizedDescription,
-      code: INITIAL_CODE,
+      code: code || INITIAL_CODE,
       updatedAt: Date.now(),
       userId: 'local'
     };

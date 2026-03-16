@@ -62,6 +62,14 @@ export interface Project {
     role: 'viewer' | 'editor';
   }[];
   gitState?: Record<string, string>;
+  likes?: number;
+  forks?: number;
+  author?: string;
+  autoAiEnabled?: boolean;
+  domain?: string;
+  appStoreStatus?: 'unsubmitted' | 'pending' | 'published';
+  playStoreStatus?: 'unsubmitted' | 'pending' | 'published';
+  hostingProvider?: 'vercel' | 'netlify' | 'custom' | null;
 }
 
 export type VulnerabilitySeverity = 'low' | 'medium' | 'high' | 'critical';
@@ -99,6 +107,20 @@ export interface ThemeConfig {
   darkSlate: string;
   fontSans: string;
   fontMono: string;
+}
+
+export type AIProvider = 'gemini' | 'openai' | 'anthropic' | 'huggingface' | 'ollama' | 'openrouter';
+
+export interface AIModel {
+  id: string;
+  name: string;
+  provider: AIProvider;
+  description: string;
+  contextWindow: number;
+  isCustom?: boolean;
+  apiKey?: string;
+  baseUrl?: string;
+  downloaded?: boolean;
 }
 
 export type ToolCategory = 'encoding' | 'formatting' | 'crypto' | 'dev';

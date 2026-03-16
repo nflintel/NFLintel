@@ -5,7 +5,7 @@ export const Tabs: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 export const TabsList: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="flex border-b border-border-base bg-bg-surface/50">{children}</div>
+  <div className="flex border-b border-black bg-white dark:bg-black/50">{children}</div>
 );
 
 export const TabsTrigger: React.FC<{ value: string; active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
